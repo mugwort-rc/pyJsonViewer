@@ -15,6 +15,9 @@ class JsonTreeNode:
         self.child = None
         self._source = None
 
+    def __len__(self):
+        return len(self.keys())
+
     @property
     def type(self):
         return self._type
@@ -159,7 +162,7 @@ class JsonTreeModel(QtCore.QAbstractItemModel):
         if not parent.isValid():
             return 1  # root
         node = parent.internalPointer()
-        return len(node.child)
+        return len(node)
 
     def headerData(self, section, orientation, role=QtCore.Qt.DisplayRole):
         if role != QtCore.Qt.DisplayRole:
@@ -176,7 +179,7 @@ class JsonTreeModel(QtCore.QAbstractItemModel):
         if not parent.isValid():
             return True
         node = parent.internalPointer()
-        return len(node.child) > 0
+        return len(node) > 0
 
     def data(self, index, role=QtCore.Qt.DisplayRole):
         if self.json is None:
