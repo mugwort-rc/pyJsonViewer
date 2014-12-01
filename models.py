@@ -2,6 +2,28 @@
 
 from PyQt5 import QtCore
 
+class Progress:
+    def __init__(self, model, maximum):
+        self.model = model
+        self.maximum = maximum
+        self.current = 0
+
+    def __enter__(self):
+        self.model.startProgress.emit(0, self.maximum)
+        self.current = 0
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.model.finishProgress.emit()
+        return type is None
+
+    def update(self, value):
+        self.current = value
+        self.model.updateProgress.emit(self.current)
+
+    def increment(self, value):
+        self.update(self.current + value)
+
 class JsonTreeNode:
 
     ARRAY = 1
@@ -13,7 +35,6 @@ class JsonTreeNode:
         self.selector = selector
         self.parent = parent
         self.child = None
-        self._source = None
 
     def __len__(self):
         return len(self.keys())
@@ -44,8 +65,11 @@ class JsonTreeNode:
         if self._child is None:
             temp = []
             data = self.data
-            for key in self.keys():
-                temp.append(self.create(key, data[key], self))
+            root = self.root()
+            with Progress(root._model, len(self)) as progress:
+                for key in self.keys():
+                    temp.append(self.create(key, data[key], self))
+                    progress.increment(1)
             self._child = temp
         return self._child
     @child.setter
@@ -110,8 +134,9 @@ class JsonTreeNode:
             return 'object({})'.format(len(data))
 
     @classmethod
-    def create_root(cls, doc):
+    def create_root(cls, model, doc):
         result = cls.create(None, doc, None)
+        result._model = model
         result._source = doc
         return result
 
@@ -139,13 +164,18 @@ class JsonTreeNode:
         return JsonTreeNode(type=cls.VALUE, selector=selector, parent=parent)
 
 class JsonTreeModel(QtCore.QAbstractItemModel):
+
+    startProgress = QtCore.pyqtSignal(int, int)
+    updateProgress = QtCore.pyqtSignal(int)
+    finishProgress = QtCore.pyqtSignal()
+
     def __init__(self, parent):
         super().__init__(parent)
         self._json = None
 
     def setJsonDocument(self, json):
         self.beginResetModel()
-        self.json = JsonTreeNode.create_root(json)
+        self.json = JsonTreeNode.create_root(self, json)
         self.endResetModel()
 
     def reset(self):
