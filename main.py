@@ -3,12 +3,12 @@
 
 import sys
 
-from PyQt5 import QtWidgets
+from PyQt4 import QtGui
 
 from mainwindow import MainWindow
 
 def main():
-    app = QtWidgets.QApplication(sys.argv)
+    app = QtGui.QApplication(sys.argv)
 
     win = MainWindow()
     win.show()

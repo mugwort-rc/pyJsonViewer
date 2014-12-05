@@ -2,17 +2,17 @@
 
 import json
 
-from PyQt5 import QtCore
-from PyQt5 import QtWidgets
+from PyQt4 import QtCore
+from PyQt4 import QtGui
 
 from models import JsonTreeModel
 from tools.cursor import BusyCursor
 
 from ui_mainwindow import Ui_MainWindow
 
-class MainWindow(QtWidgets.QMainWindow):
+class MainWindow(QtGui.QMainWindow):
     def __init__(self, parent=None):
-        super().__init__(parent)
+        super(MainWindow, self).__init__(parent)
 
         # UI initialize
         self.ui = Ui_MainWindow()
@@ -28,7 +28,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.treeView.setModel(self.jsonModel)
 
     def initProgress(self):
-        self.progress = QtWidgets.QProgressBar(self.ui.statusbar)
+        self.progress = QtGui.QProgressBar(self.ui.statusbar)
         self.progress.setVisible(False)
 
     def connectProgress(self, obj):
@@ -48,7 +48,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot()
     def on_actionOpen_triggered(self):
-        filepath, ext_filter = QtWidgets.QFileDialog.getOpenFileName(self,
+        filepath = QtGui.QFileDialog.getOpenFileName(self,
             '',
             '.',
             self.tr('Json (*.json)')

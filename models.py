@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5 import QtCore
+from PyQt4 import QtCore
 
 class Progress:
     def __init__(self, model, maximum):
@@ -24,13 +24,14 @@ class Progress:
     def increment(self, value):
         self.update(self.current + value)
 
-class JsonTreeNode:
+class JsonTreeNode(object):
 
     ARRAY = 1
     OBJECT = 2
     VALUE = 3
 
     def __init__(self, type, selector, parent=None):
+        super(JsonTreeNode, self).__init__()
         self.type = type
         self.selector = selector
         self.parent = parent
@@ -115,15 +116,15 @@ class JsonTreeNode:
             return '#root'
         elif isinstance(self.selector, int):
             return '[{}]'.format(self.selector)
-        elif isinstance(self.selector, str):
-            return '["{}"]'.format(self.selector)
+        elif isinstance(self.selector, str) or isinstance(self.selector, unicode):
+            return u'["{}"]'.format(self.selector)
 
     def value(self):
         data = self.data
         if data is None:
             return 'null'
-        elif isinstance(data, str):
-            return '"{}"'.format(data)
+        elif isinstance(data, str) or isinstance(data, unicode):
+            return u'"{}"'.format(data)
         elif isinstance(data, int) or isinstance(data, float):
             return '{}'.format(data)
         elif isinstance(data, bool):
@@ -170,7 +171,7 @@ class JsonTreeModel(QtCore.QAbstractItemModel):
     finishProgress = QtCore.pyqtSignal()
 
     def __init__(self, parent):
-        super().__init__(parent)
+        super(JsonTreeModel, self).__init__(parent)
         self._json = None
 
     def setJsonDocument(self, json):

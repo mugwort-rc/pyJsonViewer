@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5 import QtCore
-from PyQt5 import QtGui
+from PyQt4 import QtCore
+from PyQt4 import QtGui
 
 class AutoCursor(object):
     def __init__(self, widget, shape):
